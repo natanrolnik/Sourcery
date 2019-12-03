@@ -3,13 +3,27 @@ import Foundation
 /// :nodoc:
 public typealias SourceryMethod = Method
 
-public final class MethodCall: NSObject, SourceryModel {
+public final class MethodCall: NSObject, NSCoding, SourceryModel {
     public var name: String
     public var argumentLabels: [String]?
 
     public init(name: String, argumentLabels: [String]? = nil) {
         self.name = name
         self.argumentLabels = argumentLabels
+    }
+
+    required public init?(coder aDecoder: NSCoder) {
+        guard let name: String = aDecoder.decode(forKey: "name") else {
+            return nil
+        }
+
+        self.name = name
+        self.argumentLabels = aDecoder.decode(forKey: "argumentLabels")
+    }
+
+    public func encode(with aCoder: NSCoder) {
+        aCoder.encode(self.name, forKey: "name")
+        aCoder.encode(self.argumentLabels, forKey: "argumentLabels")
     }
 }
 
