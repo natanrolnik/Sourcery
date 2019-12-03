@@ -3,6 +3,16 @@ import Foundation
 /// :nodoc:
 public typealias SourceryMethod = Method
 
+public final class MethodCall: NSObject, SourceryModel {
+    public var name: String
+    public var argumentLabels: [String]?
+
+    public init(name: String, argumentLabels: [String]? = nil) {
+        self.name = name
+        self.argumentLabels = argumentLabels
+    }
+}
+
 /// Describes method parameter
 @objcMembers public final class MethodParameter: NSObject, SourceryModel, Typed, Annotated {
     /// Parameter external name
@@ -237,6 +247,8 @@ public typealias SourceryMethod = Method
     /// :nodoc:
     public var __parserData: Any?
 
+    public let calls: [MethodCall]?
+
     /// :nodoc:
     public init(name: String,
                 selectorName: String? = nil,
@@ -250,7 +262,8 @@ public typealias SourceryMethod = Method
                 isFailableInitializer: Bool = false,
                 attributes: [String: Attribute] = [:],
                 annotations: [String: NSObject] = [:],
-                definedInTypeName: TypeName? = nil) {
+                definedInTypeName: TypeName? = nil,
+                calls: [MethodCall]? = nil) {
 
         self.name = name
         self.selectorName = selectorName ?? name
@@ -265,6 +278,7 @@ public typealias SourceryMethod = Method
         self.attributes = attributes
         self.annotations = annotations
         self.definedInTypeName = definedInTypeName
+        self.calls = calls
     }
 
 // sourcery:inline:Method.AutoCoding
@@ -284,6 +298,7 @@ public typealias SourceryMethod = Method
             guard let annotations: [String: NSObject] = aDecoder.decode(forKey: "annotations") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["annotations"])); fatalError() }; self.annotations = annotations
             self.definedInTypeName = aDecoder.decode(forKey: "definedInTypeName")
             self.definedInType = aDecoder.decode(forKey: "definedInType")
+            self.calls = aDecoder.decode(forKey: "calls")
             guard let attributes: [String: Attribute] = aDecoder.decode(forKey: "attributes") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["attributes"])); fatalError() }; self.attributes = attributes
         }
 
@@ -304,6 +319,7 @@ public typealias SourceryMethod = Method
             aCoder.encode(self.definedInTypeName, forKey: "definedInTypeName")
             aCoder.encode(self.definedInType, forKey: "definedInType")
             aCoder.encode(self.attributes, forKey: "attributes")
+            aCoder.encode(self.calls, forKey: "calls")
         }
 // sourcery:end
 }

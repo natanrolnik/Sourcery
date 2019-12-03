@@ -591,8 +591,25 @@ extension FileParser {
             }
         }
 
+
+        var methodCalls: [MethodCall]?
+
+        if let methodSubsctructure = source[SwiftDocKey.substructure.rawValue] as? [[String: SourceKitRepresentable]] {
+            methodCalls = methodSubsctructure.compactMap { dict in
+                guard let kind = (dict["key.kind"] as? String),
+                    kind == "source.lang.swift.expr.call",
+                    let callName = dict["key.name"] as? String else {
+                        return nil
+                }
+
+                return MethodCall(name: callName)
+            }
+        } else {
+            methodCalls = nil
+        }
+
         let definedInTypeName  = definedIn.map { TypeName($0.name) }
-        let method = Method(name: fullName, selectorName: name.trimmingSuffix("()"), returnTypeName: TypeName(returnTypeName), throws: `throws`, rethrows: `rethrows`, accessLevel: accessibility, isStatic: isStatic, isClass: isClass, isFailableInitializer: isFailableInitializer, attributes: parseDeclarationAttributes(source), annotations: annotations.from(source), definedInTypeName: definedInTypeName)
+        let method = Method(name: fullName, selectorName: name.trimmingSuffix("()"), returnTypeName: TypeName(returnTypeName), throws: `throws`, rethrows: `rethrows`, accessLevel: accessibility, isStatic: isStatic, isClass: isClass, isFailableInitializer: isFailableInitializer, attributes: parseDeclarationAttributes(source), annotations: annotations.from(source), definedInTypeName: definedInTypeName, calls: methodCalls)
         method.setSource(source)
 
         return method
