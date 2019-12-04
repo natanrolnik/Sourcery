@@ -508,7 +508,8 @@ extension FileParser {
             let kind = requirements?.kind,
             let accessibility = requirements?.accessibility,
             var name = requirements?.name,
-            var fullName = extract(.name, from: source) else { return nil }
+            var fullName = extract(.name, from: source),// else { return nil }
+            let aLineNumbers = extractLinesNumbers(.body, from: source, contents: contents) else { return nil }
 
         fullName = fullName.strippingComments()
         name = name.strippingComments()
@@ -609,7 +610,7 @@ extension FileParser {
         }
 
         let definedInTypeName  = definedIn.map { TypeName($0.name) }
-        let method = Method(name: fullName, selectorName: name.trimmingSuffix("()"), returnTypeName: TypeName(returnTypeName), throws: `throws`, rethrows: `rethrows`, accessLevel: accessibility, isStatic: isStatic, isClass: isClass, isFailableInitializer: isFailableInitializer, attributes: parseDeclarationAttributes(source), annotations: annotations.from(source), definedInTypeName: definedInTypeName, calls: methodCalls)
+        let method = Method(name: fullName, selectorName: name.trimmingSuffix("()"), returnTypeName: TypeName(returnTypeName), throws: `throws`, rethrows: `rethrows`, accessLevel: accessibility, isStatic: isStatic, isClass: isClass, isFailableInitializer: isFailableInitializer, attributes: parseDeclarationAttributes(source), annotations: annotations.from(source), definedInTypeName: definedInTypeName, calls: methodCalls, startLine: Int64(aLineNumbers.start), endLine: Int64(aLineNumbers.end))
         method.setSource(source)
 
         return method

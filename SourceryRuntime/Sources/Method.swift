@@ -263,6 +263,10 @@ public final class MethodCall: NSObject, NSCoding, SourceryModel {
 
     public let calls: [MethodCall]?
 
+    public let startLine: Int64
+
+    public let endLine: Int64
+
     /// :nodoc:
     public init(name: String,
                 selectorName: String? = nil,
@@ -277,7 +281,9 @@ public final class MethodCall: NSObject, NSCoding, SourceryModel {
                 attributes: [String: Attribute] = [:],
                 annotations: [String: NSObject] = [:],
                 definedInTypeName: TypeName? = nil,
-                calls: [MethodCall]? = nil) {
+                calls: [MethodCall]? = nil,
+                startLine: Int64,
+                endLine: Int64) {
 
         self.name = name
         self.selectorName = selectorName ?? name
@@ -293,6 +299,8 @@ public final class MethodCall: NSObject, NSCoding, SourceryModel {
         self.annotations = annotations
         self.definedInTypeName = definedInTypeName
         self.calls = calls
+        self.startLine = startLine
+        self.endLine = endLine
     }
 
 // sourcery:inline:Method.AutoCoding
@@ -302,6 +310,15 @@ public final class MethodCall: NSObject, NSCoding, SourceryModel {
             guard let selectorName: String = aDecoder.decode(forKey: "selectorName") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["selectorName"])); fatalError() }; self.selectorName = selectorName
             guard let parameters: [MethodParameter] = aDecoder.decode(forKey: "parameters") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["parameters"])); fatalError() }; self.parameters = parameters
             guard let returnTypeName: TypeName = aDecoder.decode(forKey: "returnTypeName") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["returnTypeName"])); fatalError() }; self.returnTypeName = returnTypeName
+            guard
+                let startLine: Int64 = aDecoder.decode(forKey: "startLine"),
+                let endLine: Int64 = aDecoder.decode(forKey: "endLine") else {
+                    return nil
+            }
+
+            self.startLine = startLine
+            self.endLine = endLine
+
             self.returnType = aDecoder.decode(forKey: "returnType")
             self.`throws` = aDecoder.decode(forKey: "`throws`")
             self.`rethrows` = aDecoder.decode(forKey: "`rethrows`")
@@ -313,6 +330,7 @@ public final class MethodCall: NSObject, NSCoding, SourceryModel {
             self.definedInTypeName = aDecoder.decode(forKey: "definedInTypeName")
             self.definedInType = aDecoder.decode(forKey: "definedInType")
             self.calls = aDecoder.decode(forKey: "calls")
+
             guard let attributes: [String: Attribute] = aDecoder.decode(forKey: "attributes") else { NSException.raise(NSExceptionName.parseErrorException, format: "Key '%@' not found.", arguments: getVaList(["attributes"])); fatalError() }; self.attributes = attributes
         }
 
@@ -334,6 +352,8 @@ public final class MethodCall: NSObject, NSCoding, SourceryModel {
             aCoder.encode(self.definedInType, forKey: "definedInType")
             aCoder.encode(self.attributes, forKey: "attributes")
             aCoder.encode(self.calls, forKey: "calls")
+            aCoder.encode(self.startLine, forKey: "startLine")
+            aCoder.encode(self.endLine, forKey: "endLine")
         }
 // sourcery:end
 }
